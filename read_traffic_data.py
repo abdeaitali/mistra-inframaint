@@ -1,4 +1,7 @@
 import csv
+import codecs # helps avoid getting "_csv.Error: line contains NUL"
+
+import pandas as pd
 
 # csv file name
 filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_20171231_TrafikJVG.csv'
@@ -38,20 +41,30 @@ filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_2
 
 fields = []
 set_tågnr = set()
+dict_delsträckor = dict()
 
 nb_trains = 0
 
 # reading csv file
-with open(filename, 'r', encoding="utf8") as csv_file:
-    # creating a csv reader object
-    csv_reader = csv.reader(csv_file, delimiter=';')
+
+chunksize = 10 ** 6
+for chunk in pd.read_csv(filename,chunksize=chunksize, skiprows = 1,error_bad_lines=False):
     # extracting field names through first row
-    fields = next(csv_reader)
-    # extracting each data row one by one  
-    for row in csv_reader:
-        # tågnr
+    #fields = next(csv_reader)
+    # extracting each data chunk one by one  
+        # extracting each data row one by one  
+    #print(chunk)
+    for row in chunk.values.tolist():
+        row = list(row[0].split(';'))
+        # add up the number of trains
         if not (row[1] in set_tågnr):
             nb_trains = nb_trains + 1
             set_tågnr.add(row[1])
-    print('Number of trains: ' + nb_trains)
-    print('Size of set of trains: ' + len(set_tågnr))
+        # add up the number of trains per link
+        if (row[13], row[15]) in dict_delsträckor:
+            dict_delsträckor[(row[13], row[15])] = dict_delsträckor[(row[13], row[15])] + 1
+        else:
+            dict_delsträckor[(row[13], row[15])] = 1
+print('Number of trains: ' + nb_trains)
+print('Size of set of trains: ' + len(set_tågnr))
+print('Number of trains over link btw Karlberg/Ke -> Stockholm/Cst ' + dict_delsträckor[('Ke','Cst')])
