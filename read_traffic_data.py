@@ -75,7 +75,7 @@ antalaxlar_snitt = []
 # reading csv file
 chunk_num = 1
 chunksize = 10 ** 6
-for chunk in pd.read_csv(filename,chunksize=chunksize,skiprows=1):#,error_bad_lines=False):
+for chunk in pd.read_csv(filename,chunksize=chunksize,skiprows=1,error_bad_lines=False):
     # extracting field names through first row
     #fields = next(csv_reader)
     # extracting each data chunk one by one  
