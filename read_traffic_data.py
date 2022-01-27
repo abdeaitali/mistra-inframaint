@@ -5,6 +5,9 @@ import pandas as pd
 
 # csv file name
 filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_20171231_TrafikJVG.csv'
+
+# small sample (for testing)
+#filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_20171231_TrafikJVG_0.csv'
   
 # initializing the titles and rows list and line counter
 # col 1 - tåguppdrag
@@ -19,8 +22,10 @@ filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_2
 # col 10 - {"Första platssignatur för uppdrag", type text}
 # col 11 - {"Sista platssignatur", type text}
 # col 12 - {"Sista platssignatur för uppdrag", type text}
+
 # col 13 - {"Avgångsplats", type text}
 # col 14 - {"Från platssignatur", type text}
+
 # col 15 - {"Ankomstplats", type text}
 # col 16 - {"Till platssignatur", type text}
 # col 17 - {"Sträcka med riktning", type text}
@@ -39,32 +44,91 @@ filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_2
 # 30 {"Inställtflagga", type text},
 # 31 {"Planeringsstatus", type text}})
 
-fields = []
-set_tågnr = set()
-dict_delsträckor = dict()
+# station
+plats_fr = []
+platssignatur_fr = []
 
-nb_trains = 0
+# number of trains (per type)
+#RST	Persontrafik	Tågfärd	Resandetåg
+#GT	Godstrafik	Tågfärd	Godståg
+#TJT	Tjänstetåg	Tågfärd	Tjänstetåg
+#SPF	Godstrafik	Spärrfärd	Vagnuttagning
+#VXR	Tjänstetåg	Växling	Växling
+
+antaltåg = {}
+antaltåg["RST"] = []
+antaltåg["GT"] = []
+antaltåg["TJT"] = []
+antaltåg["VXR"] = []
+antaltåg["SPF"] = []
+
+# traffic density
+tåg = []
+tågkm = []
+tågvikt = []
+
+# genomsnitt
+tåglängd_snitt = []
+antalvagnar_snitt = []
+antalaxlar_snitt = []
 
 # reading csv file
-
+chunk_num = 1
 chunksize = 10 ** 6
-for chunk in pd.read_csv(filename,chunksize=chunksize, skiprows = 1,error_bad_lines=False):
+for chunk in pd.read_csv(filename,chunksize=chunksize,skiprows=1):#,error_bad_lines=False):
     # extracting field names through first row
     #fields = next(csv_reader)
     # extracting each data chunk one by one  
         # extracting each data row one by one  
-    #print(chunk)
+    print(chunk_num)
+    chunk_num = chunk_num + 1
     for row in chunk.values.tolist():
         row = list(row[0].split(';'))
+        if(len(row)<31):
+            continue
+        # if train is cancelled
+        if('J' == row[29]):
+            continue
         # add up the number of trains
-        if not (row[1] in set_tågnr):
-            nb_trains = nb_trains + 1
-            set_tågnr.add(row[1])
-        # add up the number of trains per link
-        if (row[13], row[15]) in dict_delsträckor:
-            dict_delsträckor[(row[13], row[15])] = dict_delsträckor[(row[13], row[15])] + 1
+        if not (row[13] in plats_fr):
+            # initialize location of the station in the lists
+            plats_fr.append(row[13])
+            platssignatur_fr.append(row[12])
+            # initialize number of trains
+            antaltåg['RST'].append(0)
+            antaltåg['GT'].append(0)
+            antaltåg['TJT'].append(0)
+            antaltåg['VXR'].append(0)
+            antaltåg['SPF'].append(0)
+            # init with 1 for the first type of trains
+            antaltåg[row[4]][-1] = 1
+            # initi traffic intensity
+            tåg.append(1)
+            tågkm.append(float(row[24]))
+            tågvikt.append(float(row[25]))
+            # init average characteristics of trains
+            tåglängd_snitt.append(float(row[26]))
+            antalvagnar_snitt.append(float(row[27]))
+            antalaxlar_snitt.append(float(row[28]))
         else:
-            dict_delsträckor[(row[13], row[15])] = 1
-print('Number of trains: ' + nb_trains)
-print('Size of set of trains: ' + len(set_tågnr))
-print('Number of trains over link btw Karlberg/Ke -> Stockholm/Cst ' + dict_delsträckor[('Ke','Cst')])
+            # get location in the lists
+            loc = plats_fr.index(row[13])
+            # increase number of trains
+            antaltåg[row[4]][loc] = antaltåg[row[4]][loc]+1
+            # increase traffic intensity.
+            tåg[loc] = tåg[loc] + 1
+            tågkm[loc] = tågkm[loc] + float(row[24])
+            tågvikt[loc] = tågvikt[loc] + float(row[25])
+            # update average characteristics of trains
+            tåglängd_snitt[loc] = tåglängd_snitt[loc] + float(row[26]) #((tåg[loc]-1)*tåglängd_snitt[loc]+float(row[26]))/tåg[loc]
+            antalvagnar_snitt[loc] = antalvagnar_snitt[loc] + float(row[27])#((tåg[loc]-1)*antalvagnar_snitt[loc]+float(row[27]))/tåg[loc]
+            antalaxlar_snitt[loc] = antalaxlar_snitt[loc] + float(row[28])#((tåg[loc]-1)*antalaxlar_snitt[loc]+float(row[28]))/tåg[loc]
+
+
+# export to a csv file
+rows = zip(plats_fr,platssignatur_fr,antaltåg['RST'],antaltåg['GT'],antaltåg['TJT'],antaltåg['VXR'],antaltåg['SPF'],tåg,tågkm,tågvikt,tåglängd_snitt,antalvagnar_snitt,antalaxlar_snitt)
+
+with open('//vti.se/root/Mistrainfra/Data/Trafikdata 2017/Export_traffic_data.csv','w',newline="") as f:
+    writer = csv.writer(f)
+    for row in rows:
+        writer.writerow(row)
