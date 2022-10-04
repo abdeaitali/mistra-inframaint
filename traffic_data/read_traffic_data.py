@@ -4,7 +4,7 @@ import codecs # helps avoid getting "_csv.Error: line contains NUL"
 import pandas as pd
 
 # csv file name
-filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_20171231_TrafikJVG.csv'
+filename = '//vti.se/root/Mistrainfra/Data/Trafikdata/Trafikdata 2017/VTI_Rådata20170101_20171231_TrafikJVG.csv'
 
 # small sample (for testing)
 #filename = '//vti.se/root/Mistrainfra/Data/Trafikdata 2017/VTI_Rådata20170101_20171231_TrafikJVG_0.csv'
@@ -84,10 +84,11 @@ for chunk in pd.read_csv(filename,chunksize=chunksize,skiprows=1,error_bad_lines
     chunk_num = chunk_num + 1
     for row in chunk.values.tolist():
         row = list(row[0].split(';'))
-        if(len(row)<31):
+        if(len(row)<31): # skip if incomplete row
             continue
-        # if train is cancelled
-        if('J' == row[29]):
+        if(row[25] == "0.00"): # skip if no rapporterad tågvikt
+            continue
+        if('J' == row[29]): # skip if train is cancelled
             continue
         # add up the number of trains
         if not (row[13] in plats_fr):
@@ -128,7 +129,7 @@ for chunk in pd.read_csv(filename,chunksize=chunksize,skiprows=1,error_bad_lines
 # export to a csv file
 rows = zip(plats_fr,platssignatur_fr,antaltåg['RST'],antaltåg['GT'],antaltåg['TJT'],antaltåg['VXR'],antaltåg['SPF'],tåg,tågkm,tågvikt,tåglängd_snitt,antalvagnar_snitt,antalaxlar_snitt)
 
-with open('//vti.se/root/Mistrainfra/Data/Trafikdata 2017/Export_traffic_data.csv','w',newline="") as f:
+with open('//vti.se/root/Mistrainfra/Data/Trafikdata/Trafikdata 2017/Export_traffic_data.csv','w',newline="") as f:
     writer = csv.writer(f)
     for row in rows:
         writer.writerow(row)
