@@ -740,6 +740,180 @@ def sort_R_cat(cat_ryear,cat_veq,cat_prof,cat_maint,cat_gauge,nr_cat,cat_H):
     return cat_year_sort,cat_year_label,cat_veq_sort,cat_veq_label,cat_prof_sort,cat_prof_label,cat_maint_sort,cat_maint_label,cat_gauge_sort,cat_gauge_label,cat_H_sort,cat_H_label
 
 
+# version of sort_R_cat for curve lengths (instead of number of curves)
+def sort_R_cat_L(cat_ryear,cat_veq,cat_prof,cat_maint,cat_gauge,nr_cat,cat_H,cat_L):
+    
+    # Create empty containers
+    cat_year_sort = np.zeros((len(cat_ryear),4))
+    cat_year_label = [2005,2010,2015]
+    cat_veq_sort = np.zeros((len(cat_veq),4))
+    cat_veq_label = [20,35,50]
+    cat_gauge_sort = np.zeros((len(cat_veq),4))
+    cat_gauge_label = [5,10,15]    
+    cat_prof_sort = np.zeros((len(cat_prof),2))
+    #cat_prof_label = ['UIC','E1','BV']
+    cat_prof_label = ['MB6','60E1']
+    cat_maint_sort = np.zeros((len(cat_ryear),4))
+    cat_maint_label = [1,2,3]
+    cat_H_sort = np.zeros((len(cat_ryear),4))
+    cat_H_label = [0.33,0.66,1]
+
+    for i in range(0,len(cat_ryear)):
+        year = cat_ryear[i] #rail age
+        veq = cat_veq[i] #veq
+        grind = cat_maint[i] 
+        gauge = cat_gauge[i]
+
+        L = np.atleast_1d(cat_L[i])
+        H = cat_H[i] 
+        if i<len(cat_ryear):
+            prof = cat_prof[i] #profile
+        
+        if np.sum(nr_cat[i])>0:
+            for j in range(0,3):
+                if j==0:
+                    # Year
+                    ind1 = np.where(year < cat_year_label[j])
+                    ind2 = np.where(year > 0)
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_year_sort[i,j] = L[ind].sum()
+
+                    # Veq
+                    ind1 = np.where(veq < cat_veq_label[j])
+                    ind2 = np.where(veq > 0)
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_veq_sort[i,j] = L[ind].sum()
+
+                    # Prof
+                    ind = np.where(prof == cat_prof_label[j])
+                    if len(ind[0])!=0:
+                        cat_prof_sort[i,j] = L[ind[0]].sum()
+
+                    # Maint
+                    ind1 = np.where(grind <= cat_maint_label[j])
+                    ind2 = np.where(grind > 0)
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_maint_sort[i,j] = L[ind].sum()
+
+                    # Gauge
+                    ind1 = np.where(gauge <= cat_gauge_label[j])
+                    ind2 = np.where(gauge > 0)
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_gauge_sort[i,j] = L[ind].sum()
+
+                    # H-damage
+                    ind1 = np.where(H <= cat_H_label[j])
+                    ind2 = np.where(H > 0)
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_H_sort[i,j] = L[ind].sum()
+
+                elif j==1:
+                    # Year
+                    ind1 = np.where(year >= cat_year_label[j-1])
+                    ind2 = np.where(year < cat_year_label[j])
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_year_sort[i,j] = L[ind].sum()
+                    
+                    # Veq
+                    ind1 = np.where(veq >= cat_veq_label[j-1])
+                    ind2 = np.where(veq < cat_veq_label[j])
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_veq_sort[i,j] = L[ind].sum()
+
+                    # Prof
+                    ind = np.where(prof == cat_prof_label[j])
+                    if len(ind[0])!=0:
+                        cat_prof_sort[i,j] = L[ind[0]].sum()
+
+                    # Maint
+                    ind1 = np.where(grind <= cat_maint_label[j])
+                    ind2 = np.where(grind > cat_maint_label[j-1])
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_maint_sort[i,j] = L[ind].sum()
+
+                    # Gauge
+                    ind1 = np.where(gauge <= cat_gauge_label[j])
+                    ind2 = np.where(gauge > cat_gauge_label[j-1])
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_gauge_sort[i,j] = L[ind].sum()
+
+                    # H-damage
+                    ind1 = np.where(H <= cat_H_label[j])
+                    ind2 = np.where(H > cat_H_label[j-1])
+                    ind = np.intersect1d(ind1[0],ind2[0])
+                    if ind.size!=0:
+                        cat_H_sort[i,j] = L[ind].sum()
+
+                else:
+                    #Year
+                    ind1_ = np.where(year >= cat_year_label[j-1])
+                    ind2_ = np.where(year < cat_year_label[j])
+                    ind1 = np.intersect1d(ind1_[0],ind2_[0])
+                    ind2 = np.where(year >= cat_year_label[j])
+                    if ind1.size!=0:
+                        cat_year_sort[i,j] = L[ind1].sum()
+                    if len(ind2[0])!=0:
+                        cat_year_sort[i,j+1] = L[ind2[0]].sum()
+
+                    #Veq
+                    ind1_ = np.where(veq >= cat_veq_label[j-1])
+                    ind2_ = np.where(veq < cat_veq_label[j])
+                    ind1 = np.intersect1d(ind1_[0],ind2_[0])
+                    ind2 = np.where(veq >= cat_veq_label[j])
+                    if ind1.size!=0:
+                        cat_veq_sort[i,j] = L[ind1].sum()
+                    if len(ind2[0])!=0:
+                        cat_veq_sort[i,j+1] = L[ind2[0]].sum() 
+
+#                    # Prof
+#                    ind = np.where(prof == cat_prof_label[j])
+#                    if len(ind)!=0:
+#                        cat_prof_sort[i,j] = np.size(ind[0])
+
+                    # Maint
+                    ind1_ = np.where(grind <= cat_maint_label[j])
+                    ind2_ = np.where(grind > cat_maint_label[j-1])
+                    ind1 = np.intersect1d(ind1_[0],ind2_[0])
+                    ind2 = np.where(grind > cat_maint_label[j])
+                    if ind1.size!=0:
+                        cat_maint_sort[i,j] = L[ind1].sum() 
+                    if len(ind2[0])!=0:
+                        cat_maint_sort[i,j+1] = L[ind2[0]].sum() 
+
+                    # Gauge
+                    ind1_ = np.where(gauge <= cat_gauge_label[j])
+                    ind2_ = np.where(gauge > cat_gauge_label[j-1])
+                    ind1 = np.intersect1d(ind1_[0],ind2_[0])
+                    ind2 = np.where(gauge > cat_gauge_label[j])
+                    if ind1.size!=0:
+                        cat_gauge_sort[i,j] = L[ind1].sum()
+                    if len(ind2[0])!=0:
+                        cat_gauge_sort[i,j+1] = L[ind2[0]].sum() 
+
+                    # H-damage
+                    ind1_ = np.where(H <= cat_H_label[j])
+                    ind2_ = np.where(H > cat_H_label[j-1])
+                    ind1 = np.intersect1d(ind1_[0],ind2_[0])
+                    ind2 = np.where(H > cat_H_label[j])
+                    if ind1.size!=0:
+                        cat_H_sort[i,j] = L[ind1].sum()
+                    if len(ind2[0])!=0:
+                        cat_H_sort[i,j+1] = L[ind2[0]].sum()
+
+
+    # Output
+    return cat_year_sort,cat_veq_sort,cat_prof_sort,cat_maint_sort,cat_gauge_sort,cat_H_sort
+
+
 # --------------------------------------------------------------------
 #                                                   Functions Optram v2
 #                                                   ------------------
@@ -752,8 +926,8 @@ def analyse_optram_spl(val,val_R_0,val_R_1,val_R_2,val_R_3,R_lim,R_coord,val_ior
     # Column
     ind_x = 2
     ind_xi = 3
-    ind_sth = 4
-    ind_prof = 5
+    ind_sth = 4 # speed
+    ind_prof = 5 # rail profile
     ind_g = 8
     ind_R = 9
     ind_h = 10
@@ -778,7 +952,7 @@ def analyse_optram_spl(val,val_R_0,val_R_1,val_R_2,val_R_3,R_lim,R_coord,val_ior
         Ngps_e = val[ind[-1],ind_Ngps]
         Egps_e = val[ind[-1],ind_Egps]
 
-        # Indexes of curev in segment data
+        # Indexes of curve in segment data
         ind_s1 = np.intersect1d(np.where(val_seg[:,0]>x_min_tf),np.where(val_seg[:,0]<x_max_tf))
         ind_s2 = np.intersect1d(np.where(val_seg[:,1]>x_min_tf),np.where(val_seg[:,1]<x_max_tf))
         ind_s3 = np.intersect1d(np.where(val_seg[:,0]>x_min_tf),np.where(val_seg[:,1]<x_max_tf))
@@ -795,8 +969,8 @@ def analyse_optram_spl(val,val_R_0,val_R_1,val_R_2,val_R_3,R_lim,R_coord,val_ior
                 ind_s = np.append(ind_s,ind_s4[0])
 
         # year of installation
-        O_func[i,10] = np.unique(val_seg[ind_s.astype(int),3])[0]
-        O_func[i,11] = np.unique(val_seg[ind_s.astype(int),4])[0]
+        O_func[i,10] = np.unique(val_seg[ind_s.astype(int),3])[0] # höger/right rail
+        O_func[i,11] = np.unique(val_seg[ind_s.astype(int),4])[0] # vänster/left rail
 
         #print(i,val[i,ind_x])
 
@@ -894,7 +1068,7 @@ def analyse_maint_opt(O_func,val_b,val_rpm):
         if i==nr_R-1:
             debug=1
 
-        # Rail damgage 
+        # Rail damage 
         damage_j = np.zeros(len(val_rpm)*2+1,dtype=float)
         for j in range(0,nr_damage):
             rpm_j = val_rpm[j]
@@ -945,6 +1119,7 @@ def cat_curve_opt(O_func,maint,R_cat,damage):
     cat_prof = np.empty(len(R_cat),dtype=object)
     cat_maint = np.empty(len(R_cat),dtype=object)
     cat_gauge = np.empty(len(R_cat),dtype=object)
+    cat_L = np.empty(len(R_cat),dtype=object)
     cat_H = np.empty(len(R_cat),dtype=object)
     cat_i = np.empty(len(R_cat),dtype=object)
     nr_cat = np.zeros(len(R_cat)+1)
@@ -993,20 +1168,22 @@ def cat_curve_opt(O_func,maint,R_cat,damage):
                 if count[j]==0:
                     v_sth = RR[i,4]  #line speed
                     cat_veq[j]=v_sth-veq #comparison against equilibrium speed
-                    cat_ryear[j] = RR[i,3]  #year of installation of rail
+                    cat_ryear[j] = RR[i,10]  #year of installation of rail (10-right and 11-left, not 3)
                     cat_prof[j] = RR[i,5]  #profile
                     cat_maint[j] = maint[i,1]
                     cat_gauge[j] = RR[i,8]
+                    cat_L[j] = RR[i,9]
                     cat_H[j] = damage[i][-1]
                     cat_i[j] = i 
 
                     count[j] = 1
                 else:
                     v_sth = RR[i,4]  #line speed
-                    ryear = RR[i,3]  #year of installation of rail
+                    ryear = RR[i,10]  #year of installation of rail (10-right and 11-left, not 3)
                     prof = RR[i,5]  #profile
                     maint_ = maint[i,1]
                     gauge_ = RR[i,8]
+                    L_ = RR[i,9]
                     cat_H_ = damage[i][-1] 
                     cat_i_ = i 
 
@@ -1016,11 +1193,12 @@ def cat_curve_opt(O_func,maint,R_cat,damage):
                     cat_prof[j]=np.vstack((cat_prof[j],prof))
                     cat_maint[j]=np.vstack((cat_maint[j],maint_))
                     cat_gauge[j]=np.vstack((cat_gauge[j],gauge_))
+                    cat_L[j]=np.vstack((cat_L[j],L_))
                     cat_H[j]=np.vstack((cat_H[j],cat_H_))
                     cat_i[j]=np.vstack((cat_i[j],cat_i_))
 
     # Output
-    return nr_cat,L_cat,cat_ryear,cat_veq,cat_prof,cat_maint,cat_gauge,cat_H,cat_i
+    return nr_cat,L_cat,cat_ryear,cat_veq,cat_prof,cat_maint,cat_gauge,cat_H,cat_i,cat_L
 
 def open_iore_v2(path,name,column_labels):
     filename = os.path.join(path,name)
