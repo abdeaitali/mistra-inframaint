@@ -579,8 +579,9 @@ def sort_R_cat(cat_ryear,cat_veq,cat_prof,cat_maint,cat_gauge,nr_cat,cat_H):
     cat_gauge_sort = np.zeros((len(cat_veq),4))
     cat_gauge_label = [5,10,15]    
     cat_prof_sort = np.zeros((len(cat_prof),2))
-    #cat_prof_label = ['UIC','E1','BV']
-    cat_prof_label = ['MB6','60E1']
+    #cat_prof_label = ['UIC','E1', 'BV']
+    #cat_prof_label = ['MB6','60E1']
+    cat_prof_label = ['UIC','E1'] # UIC (MB6?) or E1 (60E1?)
     cat_maint_sort = np.zeros((len(cat_ryear),4))
     cat_maint_label = [1,2,3]
     cat_H_sort = np.zeros((len(cat_ryear),4))
@@ -751,8 +752,9 @@ def sort_R_cat_L(cat_ryear,cat_veq,cat_prof,cat_maint,cat_gauge,nr_cat,cat_H,cat
     cat_gauge_sort = np.zeros((len(cat_veq),4))
     cat_gauge_label = [5,10,15]    
     cat_prof_sort = np.zeros((len(cat_prof),2))
-    #cat_prof_label = ['UIC','E1','BV']
-    cat_prof_label = ['MB6','60E1']
+    #cat_prof_label = ['UIC','E1', 'BV']
+    #cat_prof_label = ['MB6','60E1']
+    cat_prof_label = ['UIC','E1'] # UIC (MB6?) or E1 (60E1?)
     cat_maint_sort = np.zeros((len(cat_ryear),4))
     cat_maint_label = [1,2,3]
     cat_H_sort = np.zeros((len(cat_ryear),4))
@@ -1364,3 +1366,50 @@ def analyse_iore(O_func,val_iore,val_o,id_vehicle):
                 else:
     """
     
+
+### Output of figures
+import matplotlib.pyplot as plt
+def output_figure_length(R_cat,Y_cat_L,C,filename):
+    plt.figure(1,figsize=(14,6)) 
+    ax = plt.axes()
+    Y_cat_L_km = Y_cat_L/1000 # convert length in km
+    if C == '':
+        plt.bar(R_cat, Y_cat_L_km[0:-1], width = 90,color = 'b')
+    elif C == 'year':
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = 'Before year 2005')
+        ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = 'Between 2005-2010')
+        ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label = 'Between 2010-2015')
+        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = 'After 2015')
+    elif C == 'speed':
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = r'$\itv_{\rmSTH} - \itv_{\rmeq}<$' r'$20 \ $' r'$\rm{km/h}$')
+        ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = r'$20 \ \rm{km/h}$' r'$\leq$' r'$\itv_{\rmSTH} - \itv_{\rmeq}$' r'$<$' r'$35 \ \rm{km/h}$')
+        ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label = r'$35 \ \rm{km/h}$' r'$\leq$' r'$\itv_{\rmSTH} - \itv_{\rmeq}$' r'$<$' r'$50 \ \rm{km/h}$')
+        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = r'$\itv_{\rmSTH} - \itv_{\rmeq}>$' r'$50 \ $' r'$\rm{km/h}$')
+    elif C == 'profile':
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = 'MB6 (UIC)')
+        ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = '60E1 (E1)')
+    elif C == 'gauge':
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = 'Average gauge widening ' r'$\leq$' ' 5 mm')
+        ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = 'Average gauge widening between 5 - 10 mm')
+        ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label = 'Average gauge widening between 10 - 15 mm')
+        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = 'Average gauge widening > 15 mm')
+    elif C == 'H-damage':
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = r'$\Delta_H \leq 0.33 mm/year$')
+        ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = r'$\Delta_H$' ' between 0.33 - 0.66 mm/year')
+        ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label =  r'$\Delta_H$' ' between 0.66 - 1 mm/year')
+        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = r'$\Delta_H \geq 1 mm/year $')
+    elif C == 'grinding':
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = 'Average grinding interval ' r'$\leq$' ' 1 year')
+        ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = 'Average grinding interval between 1 - 2 years')
+        ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label = 'Average grinding interval between 2 - 3 years')
+        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = 'Average grinding interval > 3 years')
+    plt.xticks(np.arange(100,3100,100)-100/2, np.arange(0,3000,100),rotation=45)
+    plt.xticks(fontsize=22)
+    plt.yticks(fontsize=22)
+    plt.ylabel('Length of curves [km]',fontsize=24,labelpad=10)
+    plt.xlabel('Curve radius [m]',fontsize=24,labelpad=10)
+    plt.xlim((100,3000))
+    plt.ylim((0,13))
+    ax.legend(fontsize=22)
+    plt.savefig(filename,bbox_inches='tight')
+    plt.close()

@@ -206,8 +206,8 @@ cat_year_sort_100_L,cat_veq_sort_100_L,cat_prof_sort_100_L,cat_maint_sort_100_L,
 
 ## setting the curve parameters
 
-Y = 'L'
-C = 'year'
+Y = 'L' # L (length) or nr (nb. curves)
+C = 'profile' # '' (empty string, no colors), year, speed, profile, gauge, H-damage, grinding
 
 if Y == 'nr':
     if C == '':
@@ -340,45 +340,19 @@ if Y == 'nr':
         #plt.show()
 elif Y == 'L':
     if C == '':
-        # Length of curves in 100 m curve radius categories
-        plt.figure(1,figsize=(14,6)) #passage 1
-        ax = plt.axes()
-        plt.bar(R_cat_100, L_cat_100[0:-1]/1000, width = 90,color = 'b')
-        plt.xticks(np.arange(100,3100,100)-100/2, np.arange(0,3000,100),rotation=45) 
-        plt.xticks(fontsize=22)
-        plt.yticks(fontsize=22)
-        plt.ylabel('Length of curves [km]',fontsize=24,labelpad=10)
-        plt.xlabel('Curve radius [m]',fontsize=24,labelpad=10)
-        plt.xlim((100,3000))
-        plt.savefig('L_cat_100_fig.svg',bbox_inches='tight')
-        plt.close()
-        #plt.show()
+        output_figure_length(R_cat_100,L_cat_100,C,'L_cat_100_fig.svg')
     elif C == 'year':
-        # Stacked year
-        plt.figure(1,figsize=(14,6)) #passage 1
-        ax = plt.axes()
-        ax.bar(R_cat_100, cat_year_sort_100_L[:,0]/1000, width = 90,color = 'b', label = 'Before year 2005')
-        ax.bar(R_cat_100, cat_year_sort_100_L[:,1]/1000, bottom = cat_year_sort_100_L[:,0]/1000,width = 90,color = 'r', label = 'Between 2005-2010')
-        ax.bar(R_cat_100, cat_year_sort_100_L[:,2]/1000, bottom = cat_year_sort_100_L[:,0]/1000+cat_year_sort_100_L[:,1]/1000,width = 90,color = 'g', label = 'Between 2010-2015')
-        ax.bar(R_cat_100, cat_year_sort_100_L[:,3]/1000, bottom = cat_year_sort_100_L[:,0]/1000+cat_year_sort_100_L[:,1]/1000+cat_year_sort_100_L[:,2]/1000,width = 90,color = 'm', label = 'After 2015')
-        plt.xticks(np.arange(100,3100,100)-100/2, np.arange(0,3000,100),rotation=45) #('','','','',500,'','','','',1000,'','','','',1500,'','','','',2000,'','','','',2500,'','','','',3000)
-        plt.xticks(fontsize=22)
-        plt.yticks(fontsize=22)
-        plt.ylabel('Length of curves [km]',fontsize=24,labelpad=10)
-        plt.xlabel('Curve radius [m]',fontsize=24,labelpad=10)
-        plt.xlim((100,3000))
-        ax.legend(fontsize=22)
-        plt.savefig('L_year_cat_100_fig.svg',bbox_inches='tight')
-        plt.close()
-        #plt.show()
-
-
-
-
-
-
-
-
+        output_figure_length(R_cat_100,cat_year_sort_100_L,C,'L_year_cat_100_fig.svg')
+    elif C == 'speed':
+        output_figure_length(R_cat_100,cat_veq_sort_100_L,C,'L_veq_cat_100_fig.svg')
+    elif C == 'profile':
+        output_figure_length(R_cat_100,cat_prof_sort_100_L,C,'L_prof_cat_100_fig.svg')
+    elif C == 'gauge':
+        output_figure_length(R_cat_100,cat_gauge_sort_100_L,C,'L_gauge_cat_100_fig.svg')
+    elif C == 'H-damage':
+        output_figure_length(R_cat_100,cat_H_sort_100_L,C,'L_H_cat_100_fig.svg')
+    elif C == 'grinding':
+        output_figure_length(R_cat_100,cat_maint_sort_100_L,C,'L_maint_cat_100_fig.svg')
 
 
 
