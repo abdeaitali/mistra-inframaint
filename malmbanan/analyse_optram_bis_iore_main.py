@@ -207,7 +207,7 @@ cat_year_sort_100_L,cat_veq_sort_100_L,cat_prof_sort_100_L,cat_maint_sort_100_L,
 ## setting the curve parameters
 
 Y = 'L' # L (length) or nr (nb. curves)
-C = 'profile' # '' (empty string, no colors), year, speed, profile, gauge, H-damage, grinding
+C = 'gauge' # '' (empty string, no colors), year, speed, profile, gauge, H-damage, grinding
 
 if Y == 'nr':
     if C == '':

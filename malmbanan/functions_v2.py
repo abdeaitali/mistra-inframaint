@@ -1394,10 +1394,10 @@ def output_figure_length(R_cat,Y_cat_L,C,filename):
         ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label = 'Average gauge widening between 10 - 15 mm')
         ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = 'Average gauge widening > 15 mm')
     elif C == 'H-damage':
-        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = r'$\Delta_H \leq 0.33 mm/year$')
+        ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = r'$\Delta_H \leq$' '0.33 mm/year')
         ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = r'$\Delta_H$' ' between 0.33 - 0.66 mm/year')
         ax.bar(R_cat, Y_cat_L_km[:,2], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1],width = 90,color = 'g', label =  r'$\Delta_H$' ' between 0.66 - 1 mm/year')
-        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = r'$\Delta_H \geq 1 mm/year $')
+        ax.bar(R_cat, Y_cat_L_km[:,3], bottom = Y_cat_L_km[:,0]+Y_cat_L_km[:,1]+Y_cat_L_km[:,2],width = 90,color = 'm', label = r'$\Delta_H \geq$' '1 mm/year')
     elif C == 'grinding':
         ax.bar(R_cat, Y_cat_L_km[:,0], width = 90,color = 'b', label = 'Average grinding interval ' r'$\leq$' ' 1 year')
         ax.bar(R_cat, Y_cat_L_km[:,1], bottom = Y_cat_L_km[:,0],width = 90,color = 'r', label = 'Average grinding interval between 1 - 2 years')
