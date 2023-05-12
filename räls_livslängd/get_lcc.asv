@@ -74,7 +74,7 @@ for m=1:180 % till track lifetime
     if(H_curr>=H_max || gauge_curr>1455 || lifetime_remainder ==0)
         renewal = renewal + get_renewal_cost(y, inner_rail);
         if(rail_lifetime == 15)
-            rail_lifetime = y;
+            rail_lifetime = y
         end
         H_curr = 0;
         gauge_curr = 1440;
@@ -104,7 +104,7 @@ for m=1:180 % till track lifetime
 end
 
 % after end of track life, get the remaining residual from last renewal
-end_of_life = -get_renewal_cost(track_lifetime_years, inner_rail)*(rail_lifetime-mod(track_lifetime_years,rail_lifetime))/rail_lifetime;
+end_of_life = -get_renewal_cost(track_lifetime_years, inner_rail)*(2*rail_lifetime-track_lifetime_years)/rail_lifetime;
 
 
 % total LCC in NPV/meter
