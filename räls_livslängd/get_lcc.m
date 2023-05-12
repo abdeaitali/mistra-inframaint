@@ -1,4 +1,4 @@
-function lcc_total = get_lcc(H_table, maint_strategy, type, inner_rail, avg_yearly_gauge_widening, max_lifetime)
+function [lcc_total, rail_lifetime] = get_lcc(H_table, maint_strategy, type, inner_rail, avg_yearly_gauge_widening, max_lifetime)
 %GET_LCC calculates the total lifecycle costs
 %   Given a maintenance strategy (frequency of tamping/grinding), the
 %   function estimates the total LCC in net present value
@@ -106,14 +106,8 @@ end
 % after end of track life, get the remaining residual from last renewal
 end_of_life = -get_renewal_cost(track_lifetime_years, inner_rail)*(rail_lifetime-mod(track_lifetime_years,rail_lifetime))/rail_lifetime;
 
-
 % total LCC in NPV/meter
 lcc_total = train_op/track_length_meter + (maintenance+renewal+end_of_life)/track_length_meter;
-
-if(rail_lifetime==15)
-    return;
-end
-
 end
 
 
