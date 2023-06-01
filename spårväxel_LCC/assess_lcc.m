@@ -1,71 +1,99 @@
-function [res_lcc, annuity] = assess_lcc(prev,korr,time_horizon,renewal_cost, headers)
-%ASSESS_LCC Summary of this function goes here
-%   Detailed explanation goes here
+function [dir_maint_cost,prev_cap_cost,korr_cap_cost,disruption_cost] = assess_lcc(prev,korr,fail,MGT,nb_freight_year,nb_pass_year,delay_min,time_horizon,headers)
+%ASSESS_LCC given corrective and preventive and failure tables, calculate
+%the social costs over the life cycle of the switch
 
 % all types of switches and components
-nb_types = size(headers,2);
+nb_headers = size(headers,2);
 
-grinding_cost = 54422; % sek per activity, 2014-price level
-tamping_cost = 36281; % sek per activity, 2014-price level
-inspection_cost = 7067; % sek per activity, 2014-price level
-dir_maint_cost = zeros(time_horizon,nb_types);
+% maintenance work costs
+korr_main_cost = 8000; % sek per activity, 2014-price level
+prev_main_cost = 10000;%10000; % sek per activity, 2014-price level
+inspection_cost = 18000;%18000;%7067; % sek per activity, 2014-price level
 
-track_access_time_korr = 1; % in hours (immediate/day)
-track_access_time_prev = 4; % in hours (mainly nights)
-traffic_night = 10; % trains per 24h (only freight)
-yearly_traffic_passenger = 17000; % trains per year (only passenger)
-freight_path_cost = 42084; % sek per train path
-intercity_path_cost = 123819; % sek per train path
-commuter_path_cost = 27628; % sek per train path
-korr_cap_cost = zeros(time_horizon,nb_types);
-prev_cap_cost = zeros(time_horizon,nb_types);
+% track access time (maintenance windows)
+track_access_time_korr = 2; % in hours (immediate, possibly anytime)
+track_access_time_prev = 4; % in hours (mainly night-times)
 
-freight_disruption_cost = 3340; % sek per failure
-intercity_disruption_cost = 101076; % sek per failure
-commuter_disruption_cost = 45745; % sek per failure
-disruption_cost = zeros(time_horizon,nb_types);
+% MGT annual traffic
+MGT_year = MGT; % different MGT for different switch types
+%MGT_year(:) = 8; % fixed for all types
 
-for type=1:nb_types
+% average train loads (in tons or persons)
+avg_ton_freight = 400;
+avg_pass_intercity = 241;
+avg_pass_commuter = 131;
+
+% train path cost data
+%  kr per person/ton-km (ref. trafikanalys) https://www.trafa.se/globalassets/pm/2023/pm-2023_1-transportsektorns-samhallsekonomiska-kostnader-2022---bilagor.pdf
+freight_path_unit_cost =.03086;%kr per ton-km
+intercity_path_unit_cost = .09684;%kr per pax-km
+commuter_path_unit_cost = .09684;%kr per pax-km
+% average travel distance assumumption 100/300/400 km
+freight_path_cost =400*avg_ton_freight*freight_path_unit_cost;%10490;% sek per train path
+intercity_path_cost = 300*avg_pass_intercity*intercity_path_unit_cost;%25264;%1526; % sek per train path
+commuter_path_cost = 100*avg_pass_commuter*commuter_path_unit_cost;%29812;%2081; % sek per train path
+
+% delay cost data per 
+freight_disruption_unit_cost = 3.845; % sek per ton-hour
+intercity_disruption_unit_cost = .25*1008.3+.75*298; % sek per person-hour
+commuter_disruption_unit_cost = .75*281.7+.25*1008.3; % sek per person-hour
+% - per train
+freight_disruption_cost = avg_ton_freight*freight_disruption_unit_cost; % sek per train-hour
+intercity_disruption_cost = avg_pass_intercity*intercity_disruption_unit_cost; % sek per train-hour
+commuter_disruption_cost = avg_pass_commuter*commuter_disruption_unit_cost; % sek per train-hour
+
+% init
+korr_cap_cost = zeros(time_horizon,nb_headers);
+prev_cap_cost = zeros(time_horizon,nb_headers);
+disruption_cost = zeros(time_horizon,nb_headers);
+dir_maint_cost = zeros(time_horizon,nb_headers);
+
+
+for h=1:nb_headers
+    type = headers(h);
+    accumulated_load_tunganordningshalva = 0;
+    accumulated_load_korsning = 0;
     
-    %% direct maintenance costs
     for y=1:time_horizon
-        % discounting missing!
-        nb_activities = prev(y, type) + korr(y, type);
-        dir_maint_cost(y,type) = inspection_cost + nb_activities*(tamping_cost+grinding_cost)/2;
-    end
-    
-    %% capacity costs
-    for y=1:time_horizon
-        % prev (done mainly during the nights where mostly freight traffic)
+        
+        % preventive capacity costs (done mainly during the nights where mostly freight traffic)
+        accumulated_load_tunganordningshalva = accumulated_load_tunganordningshalva + MGT_year(h);
+        accumulated_load_korsning = accumulated_load_korsning + MGT_year(h);
         nb_prev_activities = prev(y, type);
-        nb_freight_paths = nb_prev_activities*track_access_time_prev*traffic_night/24;
-        prev_cap_cost(y,type) = freight_path_cost*nb_freight_paths;
+        if(accumulated_load_tunganordningshalva>=90) % for switches, att efter 90 MBT är en av de förebyggande åtgärderna
+            % ett komponentutbyte av en tunganordningshalva, och att efter 100 MBT
+            % är en av de förebyggande åtgärderna ett komponentbyte av en korsning
+            dir_maint_cost(y,h) = dir_maint_cost(y,h)+300000;
+            accumulated_load_tunganordningshalva = accumulated_load_tunganordningshalva-90;
+            %nb_prev_activities = nb_prev_activities + 1;
+        end
+        if(accumulated_load_korsning>=100)
+            dir_maint_cost(y,h) = dir_maint_cost(y,h)+200000;
+            accumulated_load_korsning = accumulated_load_korsning-100;
+            %nb_prev_activities = nb_prev_activities + 1;
+        end
+        nb_freight_paths = nb_prev_activities*track_access_time_prev*nb_freight_year(h)/365/24;
+        prev_cap_cost(y,h) = freight_path_cost*nb_freight_paths;
+        
+        % direct maintenance costs
+        dir_maint_cost(y,h) = dir_maint_cost(y,h) + inspection_cost;
+        dir_maint_cost(y,h) = dir_maint_cost(y,h) + korr(y, type)*korr_main_cost;
+        dir_maint_cost(y,h) = dir_maint_cost(y,h) + nb_prev_activities*prev_main_cost;
+        
         % corr (done immediately/day)
-        nb_korr_activities = korr(y, type);
-        nb_freight_paths = nb_korr_activities*track_access_time_korr*traffic_night/24;
-        nb_pass_paths = nb_korr_activities*track_access_time_korr*.5*yearly_traffic_passenger/(365*24);
-        korr_cap_cost(y,type) = freight_path_cost*nb_freight_paths+nb_pass_paths*(intercity_path_cost+commuter_path_cost);
+        nb_train_year = nb_freight_year(h)+nb_pass_year(h);
+        nb_train_paths = korr(y, type)*track_access_time_korr*nb_train_year/365/24;
+        unit_cost = nb_freight_year(h)*freight_path_cost+nb_pass_year(h)*(intercity_path_cost+commuter_path_cost)/2;
+        unit_cost = unit_cost/nb_train_year;
+        korr_cap_cost(y,h) = unit_cost*nb_train_paths;
+    
+        % disruption costs (using )
+        delay_hour = fail(y, type)*delay_min(h)/60;
+        unit_cost = nb_freight_year(h)*freight_disruption_cost+nb_pass_year(h)*(intercity_disruption_cost+commuter_disruption_cost)/2;
+        unit_cost = unit_cost/nb_train_year;
+%         unit_cost = 1200*60;
+        disruption_cost(y,h) = delay_hour*unit_cost;
     end
     
-    %% disruption costs
-    for y=1:time_horizon
-        nb_korr_activities = korr(y, type);
-        disruption_cost(y,type) = nb_korr_activities*(freight_disruption_cost+intercity_disruption_cost+commuter_disruption_cost);
-    end
-    
-end
-
-%% undiscounted total & annuity
-% total (undiscounted)
-lcc_undiscounted =  disruption_cost + korr_cap_cost + prev_cap_cost + dir_maint_cost;
-lcc_undiscounted(1,:) = lcc_undiscounted(1,:) + renewal_cost';
-% annuity
-rate=.04;
-annuity = sum(lcc_undiscounted,1)*(rate/(1 -(1 + rate)^(-time_horizon)));
-
-%% discouting
-res_lcc = zeros(size(lcc_undiscounted));
-for y=1:time_horizon
-    res_lcc(y,:) = lcc_undiscounted(y,:)/(1+rate)^y;
 end
 end
