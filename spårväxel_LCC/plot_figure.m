@@ -31,7 +31,7 @@ if(strcmp(type, "yearly undiscounted")) % LCC for different switch types: Yearly
         x = 1:time_horizon;
         bar(x, [disr(:,h), korr_cap(:,h),prev_cap(:,h),  dir_maint(:,h)], 'stacked');
         colormap([0 0.4470 0.7410; 0.8500 0.3250 0.0980; 0.9290 0.6940 0.1250; 0.4940 0.1840 0.5560]);
-        legend('Disruptions', 'Corrective Capacity','Preventive Capacity', 'Direct Maintenance', 'Location', 'bestoutside');
+        legend('Disruptions', 'Corrective Capacity','Preventive Capacity', 'Direct Maintenance', 'Location', 'best');
         xlabel('Year');
         ylabel('Yearly Undiscounted Costs (SEK)');
         title(header)
@@ -49,9 +49,9 @@ elseif(strcmp(type, "input"))
     figure;
     hold on;
     for i = 1:size(prev, 2)
-        plot(1:time_horizon, prev(:, i), 'DisplayName', headers_switches{i});
+        plot(1:time_horizon, prev(:, i), 'DisplayName', num2str(headers_switches{i}));
     end
-    legend('Location', 'bestoutside');
+    legend('Location', 'best');
     xlabel('Year');
     ylabel('Number');
     title('Preventive');
@@ -60,9 +60,9 @@ elseif(strcmp(type, "input"))
     figure;
     hold on;
     for i = 1:size(korr, 2)
-        plot(1:time_horizon, korr(:, i), 'DisplayName', headers_switches{i});
+        plot(1:time_horizon, korr(:, i), 'DisplayName', num2str(headers_switches{i}));
     end
-    legend('Location', 'bestoutside');
+    legend('Location', 'best');
     xlabel('Year');
     ylabel('Number');
     title('Corrective');
@@ -71,9 +71,9 @@ elseif(strcmp(type, "input"))
     figure;
     hold on;
     for i = 1:size(fail, 2)
-        plot(1:time_horizon, fail(:, i), 'DisplayName', headers_switches{i});
+        plot(1:time_horizon, fail(:, i), 'DisplayName', num2str(headers_switches{i}));
     end
-    legend('Location', 'bestoutside');
+    legend('Location', 'best');
     xlabel('Year');
     ylabel('Number');
     title('Delays');    

@@ -1,6 +1,14 @@
-function [dir_maint_cost,prev_cap_cost,korr_cap_cost,disruption_cost] = assess_lcc(prev,korr,fail,MGT,nb_freight_year,nb_pass_year,delay_min,time_horizon,headers)
+function [dir_maint_cost,prev_cap_cost,korr_cap_cost,disruption_cost] = assess_lcc(prev,korr,fail,MGT,nb_freight_year,nb_pass_year,delay_min,time_horizon,headers,ERS)
 %ASSESS_LCC given corrective and preventive and failure tables, calculate
 %the social costs over the life cycle of the switch
+
+ERS_level = 0;
+if nargin < 10 || isempty(ERS)
+    ERS = 0; % by default no ERS
+elseif(ERS == 1) % ERS calculations
+    ERS_level = headers{2};
+    headers = headers{1};
+end
 
 % all types of switches and components
 nb_headers = size(headers,2);
@@ -65,19 +73,25 @@ for h=1:nb_headers
             % är en av de förebyggande åtgärderna ett komponentbyte av en korsning
             dir_maint_cost(y,h) = dir_maint_cost(y,h)+300000;
             accumulated_load_tunganordningshalva = accumulated_load_tunganordningshalva-90;
-            %nb_prev_activities = nb_prev_activities + 1;
+            nb_prev_activities = nb_prev_activities + 1;
         end
         if(accumulated_load_korsning>=100)
             dir_maint_cost(y,h) = dir_maint_cost(y,h)+200000;
             accumulated_load_korsning = accumulated_load_korsning-100;
-            %nb_prev_activities = nb_prev_activities + 1;
+            nb_prev_activities = nb_prev_activities + 1;
         end
         nb_freight_paths = nb_prev_activities*track_access_time_prev*nb_freight_year(h)/365/24;
         prev_cap_cost(y,h) = freight_path_cost*nb_freight_paths;
         
         % direct maintenance costs
         dir_maint_cost(y,h) = dir_maint_cost(y,h) + inspection_cost;
-        dir_maint_cost(y,h) = dir_maint_cost(y,h) + korr(y, type)*korr_main_cost;
+        
+        % ERS
+        if(ERS == 1 && korr(y, type)*korr_main_cost>ERS_level{h})
+            dir_maint_cost(y,h) = dir_maint_cost(y,h) + korr(y, type)*korr_main_cost-ERS_level{h};
+        else
+            dir_maint_cost(y,h) = dir_maint_cost(y,h) + korr(y, type)*korr_main_cost;
+        end
         dir_maint_cost(y,h) = dir_maint_cost(y,h) + nb_prev_activities*prev_main_cost;
         
         % corr (done immediately/day)

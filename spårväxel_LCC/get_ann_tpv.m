@@ -6,7 +6,6 @@ nb_switches = size(dir_maint,2);
 
 % Compute the sum of undiscounted costs
 total_cost = dir_maint + prev_cap + korr_cap + disr;
-%total_cost(end,:) = total_cost(end,:) + renewal_costs_switches';
     
 % discouting
 total_discounted_cost = zeros(max(year_lifetime(:)),nb_switches);

@@ -24,6 +24,7 @@ ERS_prev = xlsread(filename,"ERS","B3:I77");
 ERS_korr = xlsread(filename,"ERS","B79:I153");
 ERS_fail = xlsread(filename,"ERS","B155:I229");
 % convert from cummulative to yearly increments
+factor = linspace(1,6,75);
 for y=1:time_horizon_max
     row = time_horizon_max-y+1;
     if(row>1)
@@ -35,8 +36,13 @@ for y=1:time_horizon_max
         ERS_korr(row,:) = ERS_korr(row,:) - ERS_korr(row-1,:);
         ERS_fail(row,:) = ERS_fail(row,:) - ERS_fail(row-1,:);
     end
+    % amplify !!!
+    korr(row,:) = factor(row)*korr(row,:);
+    prev(row,:) = factor(row)*prev(row,:);
+    fail(row,:) = factor(row)*fail(row,:);
+    % ERS
+    ERS_korr(row,:) = factor(row)*ERS_korr(row,:);
+    ERS_prev(row,:) = factor(row)*ERS_prev(row,:);
+    ERS_fail(row,:) = factor(row)*ERS_fail(row,:);    
 end
 ERS = {ERS_prev, ERS_korr, ERS_fail};
-korr = korr;
-prev = prev;
-fail = fail;
