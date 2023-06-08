@@ -1,4 +1,4 @@
-function [dir_maint_cost,prev_cap_cost,korr_cap_cost,disruption_cost] = assess_lcc(data,ERS)
+function [dir_maint_cost,prev_cap_cost,korr_cap_cost,disruption_cost] = assess_lcc(data)
 %ASSESS_LCC given corrective and preventive and failure tables, calculate
 %the social costs over the life cycle of the switch
 prev = data{1};
@@ -13,20 +13,11 @@ headers = data{8};
 korr_main_cost = data{9};%8000; % sek per activity, 2014-price level
 prev_main_cost = data{10};%5000; % sek per activity, 2014-price level
 
-% Reimbursement rule variant or not
-ERS_level = 0;
-if nargin < 2 || isempty(ERS)
-    ERS = 0; % by default no ERS
-elseif(ERS == 1) % ERS calculations
-    ERS_level = headers{2};
-    headers = headers{1};
-end
-
 % all types of switches and components
-nb_headers = size(headers,2);
+nb_headers = length(headers);
 
 % track access time (maintenance windows)
-track_access_time_korr = 2; % in hours (immediate, possibly anytime)
+track_access_time_korr = 1; % in hours (immediate, possibly anytime)
 track_access_time_prev = 4; % in hours (mainly night-times)
 
 % MGT annual traffic
@@ -43,9 +34,10 @@ freight_path_unit_cost =.00779;%kr per ton-km
 intercity_path_unit_cost = .05813;%kr per pax-km
 commuter_path_unit_cost = .05813;%kr per pax-km
 % average travel distance assumumption 100/300/400 km
-freight_path_cost =400*avg_ton_freight*freight_path_unit_cost;%10490;% sek per train path
-intercity_path_cost = 300*avg_pass_intercity*intercity_path_unit_cost;%25264;%1526; % sek per train path
-commuter_path_cost = 100*avg_pass_commuter*commuter_path_unit_cost;%29812;%2081; % sek per train path
+freight_path_cost =46350;%400*avg_ton_freight*freight_path_unit_cost;%46350;% sek per train path
+intercity_path_cost = 57628;%300*avg_pass_intercity*intercity_path_unit_cost;%57628;%1526; % sek per train path
+commuter_path_cost = 29812;%100*avg_pass_commuter*commuter_path_unit_cost;%29812;%2081; % sek per train path
+
 
 % delay cost data per 
 freight_disruption_unit_cost = 3.845; % sek per ton-hour
@@ -85,7 +77,7 @@ for h=1:nb_headers % all switch types (or ERS levels, if ERS=1)
                 % är en av de förebyggande åtgärderna ett komponentbyte av en korsning
                 dir_maint_cost(y,h) = dir_maint_cost(y,h)+kostnad_prev(p);
                 accumulated_load_prev(p) = accumulated_load_prev(p)-limit_load_prev(p);
-                  nb_prev_activities = nb_prev_activities + 1;
+               %   nb_prev_activities = nb_prev_activities + 1;
             end
         end
         nb_freight_paths = nb_prev_activities*track_access_time_prev*nb_freight_year(h)/365/24;
@@ -95,7 +87,7 @@ for h=1:nb_headers % all switch types (or ERS levels, if ERS=1)
         nb_korr_activities = korr(y, h);
         if(mod(y,8)==0) % Växelvärmeelement, byte (baseras på 16 element, ofta som avhjälpande underhåll) 
             dir_maint_cost(y,h) = dir_maint_cost(y,h) + 50000;
-              nb_korr_activities = nb_korr_activities + 1;
+%               nb_korr_activities = nb_korr_activities + 1;
         end
         nb_train_year = nb_freight_year(h)+nb_pass_year(h);
         nb_train_paths = nb_korr_activities*track_access_time_korr*nb_train_year/365/24;

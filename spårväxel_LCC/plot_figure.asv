@@ -151,10 +151,8 @@ elseif(strcmp(type, "optimal-lifetime") || strcmp(type, "optimal-lifetime-ERS"))
     
     % Set legend
     legend('Optimal Lifetime', 'Minimal Annuity', 'Location', 'bestoutside');
-    hold off;
-        
+    
 elseif(strcmp(type, "break-even"))
-    figure;
     min_annuity = data{1};
     headers_num = data{2};
     headers = headers_num;
@@ -163,7 +161,7 @@ elseif(strcmp(type, "break-even"))
     end
     
     contract_years = data{3};
-    korr_ERS = data{4};
+    fail_ERS = data{4};
     optimal_lifetime_switches = data{5};
     
     % plot the LCC over the contract period
@@ -174,10 +172,10 @@ elseif(strcmp(type, "break-even"))
     RR = zeros(length(headers),1);
     for h=1:length(headers)
         for y=1:optimal_lifetime_switches(h)
-            RR(h) = RR(h) + korr_ERS(y,h)*headers_num{h};
+            RR = RR + fail_ERS(y,h)*headers_num{h};
         end
     end
-    plot(1:length(headers),contract_years*RR./optimal_lifetime_switches)
+    plot(headers,contract_years*RR./optimal_lifetime_switches)
     xticklabels(headers);
     legend('LCC','RR')
     hold off;

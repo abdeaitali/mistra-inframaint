@@ -7,6 +7,12 @@ nb_switches = size(dir_maint,2);
 % Compute the sum of undiscounted costs
 total_cost = dir_maint + prev_cap + korr_cap + disr;
 
+% % Compute the percentage of different costs over all years for each switch type
+% total_cost_yearly = sum(dir_maint, 1) + sum(prev_cap, 1) + sum(korr_cap, 1) + sum(disr, 1);
+% perc_dir_maint = (sum(dir_maint, 1) ./ total_cost_yearly) * 100
+% perc_prev_cap = (sum(prev_cap, 1) ./ total_cost_yearly) * 100
+% perc_korr_cap = (sum(korr_cap, 1) ./ total_cost_yearly) * 100
+% perc_disr = (sum(disr, 1) ./ total_cost_yearly) * 100
 
 % discouting
 rate=.035;
