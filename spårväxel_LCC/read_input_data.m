@@ -24,7 +24,7 @@ ERS_prev = xlsread(filename,"ERS","B3:I77");
 ERS_korr = xlsread(filename,"ERS","B79:I153");
 ERS_fail = xlsread(filename,"ERS","B155:I229");
 % convert from cummulative to yearly increments
-factor = linspace(1,6,75);
+factor = linspace(1,1,75);
 for y=1:time_horizon_max
     row = time_horizon_max-y+1;
     if(row>1)
