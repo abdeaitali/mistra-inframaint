@@ -18,10 +18,5 @@ for g=1:size(risk,1)-1
     end
 end
 
-% in case of MB6, append gauges with max lifetime = 12 months
-if(size(risk,1)==2)
-    max_lifetime = [12;12;max_lifetime];
-end
-
 end
 

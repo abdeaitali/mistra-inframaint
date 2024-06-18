@@ -6,7 +6,7 @@ korr = data{2};
 fail = data{3};
 nb_freight_year = data{4};
 nb_pass_year = data{5};
-delay_min = data{6};
+delay_min = 129*ones(size(data{6}));%30.66188*ones(size(data{6}));
 time_horizon = data{7};
 headers = data{8};
 % maintenance work costs
@@ -77,7 +77,7 @@ for h=1:nb_headers % all switch types (or ERS levels, if ERS=1)
                 % är en av de förebyggande åtgärderna ett komponentbyte av en korsning
                 dir_maint_cost(y,h) = dir_maint_cost(y,h)+kostnad_prev(p);
                 accumulated_load_prev(p) = accumulated_load_prev(p)-limit_load_prev(p);
-               %   nb_prev_activities = nb_prev_activities + 1;
+                 nb_prev_activities = nb_prev_activities + 1;
             end
         end
         nb_freight_paths = nb_prev_activities*track_access_time_prev*nb_freight_year(h)/365/24;
@@ -87,7 +87,7 @@ for h=1:nb_headers % all switch types (or ERS levels, if ERS=1)
         nb_korr_activities = korr(y, h);
         if(mod(y,8)==0) % Växelvärmeelement, byte (baseras på 16 element, ofta som avhjälpande underhåll) 
             dir_maint_cost(y,h) = dir_maint_cost(y,h) + 50000;
-%               nb_korr_activities = nb_korr_activities + 1;
+              nb_korr_activities = nb_korr_activities + 1;
         end
         nb_train_year = nb_freight_year(h)+nb_pass_year(h);
         nb_train_paths = nb_korr_activities*track_access_time_korr*nb_train_year/365/24;
