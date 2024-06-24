@@ -31,12 +31,10 @@ table_interpol = zeros(4,grinding_freq_max);
 ext_H_table = [zeros(size(gauge,2),1) table];
 
 if(arg_num == 0)
-    table_interpol = zeros(4,3);
-
     %%% interpolation of the gauge widening
     % Prepare the data for interpolation
     [X, Y] = meshgrid(Yq, gauge);
-    V = table(:, Yq);
+    V = ext_H_table(:, Yq);
     
     % Flatten the data for scatteredInterpolant
     X = X(:);
@@ -46,10 +44,10 @@ if(arg_num == 0)
     % Create the interpolant
     F = scatteredInterpolant(X, Y, V, type, 'linear');
 
-    % Interpolation and extrapolation 
+    % Interpolation and extrapolation  and 
     std_gauge = [1440,1445,1450,1455];
     for g_id = 1:length(std_gauge) % for each gauge 
-        for init_wg = 1:length(Yq) % for each of the three initial widening
+        for init_wg = 1:length(Yq) % for each initial widening
             table_interpol(g_id, init_wg) = F(init_wg, std_gauge(g_id));
         end
     end

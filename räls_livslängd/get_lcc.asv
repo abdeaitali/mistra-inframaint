@@ -110,7 +110,7 @@ for m=1:max_m % till track lifetime
     % stop if we need to renew the rail or if we are beyond the maximal gauge limit
     % include remaining_lifetime using max_lifetime (from risk tables)
     if(H_curr>H_max || lifetime_remainder == 0)
-        rail_lifetime = y; % return lifetime in years
+        rail_lifetime = m/12; % return lifetime in years
         break;
     end
     
@@ -118,7 +118,6 @@ for m=1:max_m % till track lifetime
     if(gauge_curr>=1450)
         if(lifetime_remainder > max_lifetime(3))
             lifetime_remainder = max_lifetime(3);
-        end
     end
             
     % older grindng and tamping

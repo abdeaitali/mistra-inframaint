@@ -1,15 +1,26 @@
-function [H_table_MB5,H_table_MB6, risk_MB5, risk_MB6] = read_input_data(sheet)
+function [H_table_MB5,H_table_MB6, nat_wear_MB5, nat_wear_MB6, risk_MB5, risk_MB6, gauge_widening] = read_input_data(sheet)
 %READ_INPUT_DATA Reads simulation results
 %   Based on simulation results, this function reads resulting tables
 
-% read table with mechanical simulation results
+%%% Set the filename and rows
 filename = "./Wear/mistra_results.xlsx";
-xlRange_MB5 = "B3:M6";
-xlRange_MB6 = "B8:M9";
+xlRange_MB5 = "B3:M6"; % MB5, H-index values
+xlRange_MB6 = "B8:M9"; % MB6, H-index values
+xlRange_MB5_natWear = "B12:M15"; % MB5, natural wear values
+xlRange_MB6_natWear = "B17:M18"; % MB6, natural wear values
+
+%%% read H-index values from table with mechanical simulation results
 H_table_MB5 = xlsread(filename,sheet,xlRange_MB5);
 H_table_MB6 = xlsread(filename,sheet,xlRange_MB6);
 
-% manually set input data
+%%% read natural wear values
+nat_wear_MB5 = xlsread(filename,sheet,xlRange_MB5_natWear);
+nat_wear_MB6 = xlsread(filename,sheet,xlRange_MB6_natWear);
+
+%%% read average yearly gauge widening for different initial widenings (1, 2 or 3 mm)
+gauge_widening = xlsread(filename,"gauge","A2:D9");
+
+%%% manually set input data (for derailement risk, i.e., max. lifetime)
 risk_MB5 = zeros(4,12);
 risk_MB6 = zeros(2,12);
 if(strcmp(sheet,"H_30t"))

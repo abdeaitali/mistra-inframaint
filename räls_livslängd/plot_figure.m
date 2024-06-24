@@ -153,6 +153,112 @@ elseif(strcmp(wanted_fig(end-12:end),'interpolation'))
     xlabel('Months (since last grinding)')
     ylabel('Gauge (in mm)')
     zlabel('Monthly increase in {\it H}-index')
+elseif(strcmp(wanted_fig, 'sensitivity analysis - gauge widening'))
+    
+    opt_grinding = arg{1};
+    opt_tamping = arg{2};
+    ANNs = arg{3};
+    lifetimes = arg{4};
+    
+    % Define the initial gauge widening values
+    gauge_widening_values = [1, 2, 3]; % in mm/y
+    
+    % Plot the variation of optimal lifetimes and ANNs as bar charts
+    figure;
+    yyaxis left;
+    bar(gauge_widening_values, lifetimes, 0.2, 'FaceColor', 'b');
+    ylabel('Optimal Lifetime');
+    yyaxis right;
+    bar(gauge_widening_values + 0.3, ANNs, 0.2, 'FaceColor', 'r');
+    ylabel('Annuity (SEK per year and meter)');
+    xlabel('Initial gauge widening (mm/y)');
+    grid on;
+    legend({'Optimal Lifetime', 'ANN'}, 'Location', 'bestoutside');
+    
+    % Plot the variation of optimal grinding and tamping intervals as bar charts
+    figure;
+    yyaxis left;
+    bar(gauge_widening_values, opt_grinding, 0.2, 'FaceColor', 'b');
+    ylabel('Optimal Grinding Interval (months)');
+    yyaxis right;
+    bar(gauge_widening_values + 0.3, opt_tamping, 0.2, 'FaceColor', 'r');
+    ylabel('Optimal Tamping Interval (months)');
+    xlabel('Initial gauge widening (mm/y)');
+    grid on;
+    legend({'Optimal Grinding Interval', 'Optimal Tamping Interval'}, 'Location', 'bestoutside');
+    
+elseif(strcmp(wanted_fig, 'sensitivity analysis - renewal costs'))
+    
+    opt_grinding = arg{1};
+    opt_tamping = arg{2};
+    ANNs = arg{3};
+    lifetimes = arg{4};
+    rc = arg{5};
+    
+    % Plot the variation of optimal lifetimes and ANNs
+    figure;
+    yyaxis left;
+    plot(rc, lifetimes, '-o', 'Color', 'b', 'LineWidth', 2);
+    ylabel('Optimal Lifetime (years)');
+    yyaxis right;
+    plot(rc, ANNs, '-x', 'Color', 'r', 'LineWidth', 2);
+    ylabel('Annuity (SEK per year and meter)');
+    xlabel('Renewal Costs (SEK per meter)');
+    grid on;
+    legend({'Optimal Lifetime', 'ANN'}, 'Location', 'bestoutside');
+    
+    % Plot the variation of optimal grinding and tamping intervals
+    figure;
+    yyaxis left;
+    plot(rc, opt_grinding, '-o', 'Color', 'b', 'LineWidth', 2);
+    ylabel('Optimal Grinding Interval (months)');
+    yyaxis right;
+    plot(rc, opt_tamping, '-x', 'Color', 'r', 'LineWidth', 2);
+    ylabel('Optimal Tamping Interval (months)');
+    xlabel('Renewal Costs (SEK per meter)');
+    grid on;
+    legend({'Optimal Grinding Interval', 'Optimal Tamping Interval'}, 'Location', 'bestoutside');
+    
+    
+elseif(strcmp(wanted_fig, 'sensitivity analysis - renewal costs & gauge widening'))
+    
+    ANNs = arg{1};
+    lifetimes = arg{2};
+    rc = arg{3};
+    
+    %%% Define variables for plotting
+    renewal_costs = rc;
+    gauge_widening_labels = {'Gauge Widening from 1mm/y', 'Gauge Widening from 2mm/y', 'Gauge Widening from 3mm/y'};
+    colors = {'b', 'g', 'r'};
+    
+    %%% plot the minimal annuity
+    % Plot ANN vs Renewal Costs
+    figure;
+    hold on;
+    for gw = 1:nb_gauge_widening
+        plot(renewal_costs, ANNs(:, gw), 'DisplayName', gauge_widening_labels{gw}, 'Color', colors{gw}, 'Marker', 'o');
+    end
+    xlabel('Renewal Costs');
+    ylabel('Minimal annuity (SEK per year and meter)');
+    title('ANN vs Renewal Costs for Different Gauge Widenings');
+    legend show;
+    grid on;
+    hold off;
+    
+    %%% plot the lifetime
+    % Plot Lifetime vs Renewal Costs
+    figure;
+    hold on;
+    for gw = 1:nb_gauge_widening
+        plot(renewal_costs, lifetimes(:, gw), 'DisplayName', gauge_widening_labels{gw}, 'Color', colors{gw}, 'Marker', 'o');
+    end
+    xlabel('Renewal Costs (SEK per meter)');
+    ylabel('Optimal lifetime (in years)');
+    title('Lifetime vs Renewal Costs for Different Gauge Widenings');
+    legend show;
+    grid on;
+    hold off;
+    
 end
 
 end
