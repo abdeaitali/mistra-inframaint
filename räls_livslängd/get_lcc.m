@@ -64,6 +64,8 @@ lifetime_remainder = max_m;
 % total renewl cost
 renewal = renewal_costs*track_length_meter;
 
+gauge_curr_historic = zeros(1, max_m);
+H_curr_historic = zeros(1, max_m);
 
 %%% simulation of LCC
 for m=1:max_m % till track lifetime
@@ -74,6 +76,7 @@ for m=1:max_m % till track lifetime
     %%% gauge increase after 1 month
     avg_yearly_gauge_widening = interp1(Xq, gauge_widening(:),gauge_curr,type);
     gauge_curr = gauge_curr+avg_yearly_gauge_widening/12;
+    gauge_curr_historic(m) = gauge_curr;
     
     lifetime_remainder = lifetime_remainder-1;
     % calculate the marginal increase delta_H
@@ -97,6 +100,7 @@ for m=1:max_m % till track lifetime
             H_curr;
         end
     end
+    H_curr_historic(m) = H_curr;
     
     % Tamping and its costs
     if(latest_tamping_since==tamping_freq) % time to do tamping
@@ -133,4 +137,21 @@ end
 % total LCC in NPV/meter
 lcc_total = train_op +maintenance+renewal;%+end_of_life;
 lcc_total = lcc_total/track_length_meter/rail_lifetime;
+
+
+%%% print historical values of H_index and Gauge
+% figure;
+% yyaxis left;
+% plot(H_curr_historic, '-b', 'LineWidth', 2);
+% ylabel('H');
+% xlabel('Age in Months');
+% grid on;
+% yyaxis right;
+% plot(gauge_curr_historic, '-r', 'LineWidth', 2);
+% ylabel('Gauge');
+% ylim([1440, 1455])
+% title('H and Gauge vs Time');
+% legend({'H', 'Gauge'}, 'Location', 'best');
+
+
 end
