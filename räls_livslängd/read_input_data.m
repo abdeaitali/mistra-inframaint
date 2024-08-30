@@ -1,4 +1,6 @@
-function [H_table_MB5,H_table_MB6, nat_wear_MB5, nat_wear_MB6, risk_MB5, risk_MB6, gauge_widening] = read_input_data(sheet)
+function [H_table_MB5,H_table_MB6, nat_wear_MB5, nat_wear_MB6, risk_MB5, ...
+    risk_MB6, gauge_widening, RCF_residual_MB5, RCF_residual_MB6, ...
+    RCF_depth_MB5, RCF_depth_MB6] = read_input_data(sheet)
 %READ_INPUT_DATA Reads simulation results
 %   Based on simulation results, this function reads resulting tables
 
@@ -6,19 +8,38 @@ function [H_table_MB5,H_table_MB6, nat_wear_MB5, nat_wear_MB6, risk_MB5, risk_MB
 filename = "./Wear/mistra_results.xlsx";
 xlRange_MB5 = "B3:M6"; % MB5, H-index values
 xlRange_MB6 = "B8:M9"; % MB6, H-index values
+
 xlRange_MB5_natWear = "B12:M15"; % MB5, natural wear values
 xlRange_MB6_natWear = "B17:M18"; % MB6, natural wear values
 
+xlRange_MB5_RCF_residual = "B21:M24"; % MB5, RCF residual values
+xlRange_MB6_RCF_residual = "B26:M27"; % MB6, RCF residual values
+
+xlRange_MB5_RCF_depth = "B30:M33"; % MB5, RCF depth values
+xlRange_MB6_RCF_depth = "B35:M36"; % MB6, RCF depth values
+
 %%% read H-index values from table with mechanical simulation results
 H_table_MB5 = xlsread(filename,sheet,xlRange_MB5);
-H_table_MB6 = xlsread(filename,sheet,xlRange_MB6);
+H_table_MB6_ex = xlsread(filename,sheet,xlRange_MB6);
+H_table_MB6 = [H_table_MB5(1:2,:);H_table_MB6_ex];
 
 %%% read natural wear values
 nat_wear_MB5 = xlsread(filename,sheet,xlRange_MB5_natWear);
-nat_wear_MB6 = xlsread(filename,sheet,xlRange_MB6_natWear);
+nat_wear_MB6_ex = xlsread(filename,sheet,xlRange_MB6_natWear);
+nat_wear_MB6 = [nat_wear_MB5(1:2,:);nat_wear_MB6_ex];
+
+%%% read RCF residual values
+RCF_residual_MB5 = xlsread(filename,sheet,xlRange_MB5_RCF_residual);
+RCF_residual_MB6_ex = xlsread(filename,sheet,xlRange_MB6_RCF_residual);
+RCF_residual_MB6 = [RCF_residual_MB5(1:2,:);RCF_residual_MB6_ex];
+
+%%% read RCF depth values
+RCF_depth_MB5 = xlsread(filename,sheet,xlRange_MB5_RCF_depth);
+RCF_depth_MB6_ex = xlsread(filename,sheet,xlRange_MB6_RCF_depth);
+RCF_depth_MB6 = [RCF_depth_MB5(1:2,:);RCF_depth_MB6_ex];
 
 %%% read average yearly gauge widening for different initial widenings (1, 2 or 3 mm)
-gauge_widening = xlsread(filename,"gauge","A2:D9");
+gauge_widening = xlsread(filename,"gauge","B2:D9");
 
 %%% manually set input data (for derailement risk, i.e., max. lifetime)
 risk_MB5 = zeros(4,12);
